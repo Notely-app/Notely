@@ -5,11 +5,13 @@ export default function Home() {
     const [text, setText] = useState<string>("Loading..")
 
     useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_URL}/`)
-            .then((r) => r.text())
-            .then(setText)
+        fetch(`${import.meta.env.VITE_API_URL}/api/hello`, {
+            credentials: "include",
+        })
+            .then((r) => r.json())
+            .then((d) => setText(d.message ?? JSON.stringify(d)))
             .catch(() => setText("Failed to reach API"))
-    }, []);
+    }, [])
 
     return (
         <div className={"min-h-svh p-6 flex items-center justify-center"}>
