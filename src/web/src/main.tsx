@@ -6,6 +6,8 @@ import Home from "@/pages/Home.tsx";
 import App from "@/App.tsx";
 import Auth from "@/pages/Auth.tsx";
 
+document.documentElement.classList.add("dark")
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
