@@ -1,93 +1,55 @@
 import {useState} from "react";
-import {authClient} from "@/lib/auth-client.ts";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
+import AuthCard from "@/pages/AuthCard.tsx";
 
 export default function Auth() {
     const [mode, setMode] = useState<"signin" | "signup">("signin")
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const [name, setName] = useState("")
-    const [status, setStatus] = useState<string>("")
-
-    async function doEmailAuth() {
-        const webOrigin = window.location.origin
-
-        setStatus("Working..")
-        if(mode === "signup") {
-            const { error } = await authClient.signUp.email(
-                { email, password, name, callbackURL: `${webOrigin}/` },
-                {
-                    onSuccess: () => setStatus("Signed up, check your email to verify"),
-                    onError: (ctx) => setStatus(ctx.error.message)
-                }
-            )
-            if(error) { // @ts-ignore
-                setStatus(error.message)
-            }
-        } else {
-            const { error } = await authClient.signIn.email(
-                { email, password, callbackURL: `${webOrigin}/` },
-                {
-                    onSuccess: () => setStatus("Signed in"),
-                    onError: (ctx) => setStatus(ctx.error.message)
-                }
-            )
-            if(error) { // @ts-ignore
-                setStatus(error.message)
-            }
-        }
-    }
-
-    async function doSocial(provider: "google" | "github") {
-        const webOrigin = window.location.origin
-
-        setStatus(`Redirecting to ${provider}..`)
-        await authClient.signIn.social({
-            provider,
-            callbackURL: `${webOrigin}/`,
-            errorCallbackURL: `${webOrigin}/auth`
-        })
-    }
 
     return (
-        <div className="max-w-lg">
-            <h1>{mode === "signup" ? "Sign Up" : "Sign In"}</h1>
-
-            <div className={"flex gap-8 mb-12"}>
-                <button onClick={() => setMode("signin")}>Sign in</button>
-                <button onClick={() => setMode("signup")}>Sign up</button>
-            </div>
-
-            {mode === "signup" && (
-                <div className={"mb-8"}>
-                    <label>Name</label>
-                    <input className={"w-full"} value={name} onChange={(e) => setName(e.target.value)} />
+        <div className={"mx-auto grid max-w-5xl items-center gap-8 lg:grid-cols-2"}>
+            <div className={"space-y-5"}>
+                <div className={"inline-flex items-center rounded-full border border-white/10 bg-background/40 px-3 py-1 text-xs text-muted-foreground"}>
+                    Secure, fast, and functional
                 </div>
-            )}
 
-            <div className={"mb-8"}>
-                <label>Email</label>
-                <input className={"w-full"} value={email} onChange={(e) => setEmail(e.target.value)} />
+                <h1 className={"text-4xl font-semibold tracking-tight"}>
+                    Sign into{" "}
+                    <span className={"bg-gradient-to-r from-indigo-400 to-fuchsia-400 bg-clip-text text-transparent"}>
+                        Notely
+                    </span>
+                </h1>
+
+                <p className={"text-muted-foreground"}>
+                    Why would you need anything else when you have Notely?
+                </p>
+
+                <div className={"grid gap-3 sm:grid-cols-2"}>
+                    <div className={"rounded-xl border border-white/10 bg-background/40 p-4"}>
+                        <div className={"text-sm font-medium"}>Private, secure notes</div>
+                        <div className={"mt-1 text-sm text-muted-foreground"}>At Notely your privacy is our main priority</div>
+                    </div>
+                    <div className={"rounded-xl border border-white/10 bg-background/40 p-4"}>
+                        <div className={"text-sm font-medium"}>Importing</div>
+                        <div className={"mt-1 text-sm text-muted-foreground"}>We make it easy to import notes from another app</div>
+                    </div>
+                </div>
             </div>
 
-            <div className={"mb-8"}>
-                <label>Password</label>
-                <input className={"w-full"} type={"password"} value={password} onChange={(e) => setPassword(e.target.value)} />
+            <div className={"rounded-2xl border border-white/10 bg-background/60 p-2 backdrop-blur supports-[backdrop-filter]:bg-background/40"}>
+                <Tabs value={mode} onValueChange={(v) => setMode(v as any)}>
+                    <TabsList className={"grid w-full grid-cols-2"}>
+                        <TabsTrigger value={"signin"}>Sign in</TabsTrigger>
+                        <TabsTrigger value={"signup"}>Sign up</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value={"signin"} className={"mt-2"}>
+                        <AuthCard mode={"signin"} />
+                    </TabsContent>
+                    <TabsContent value={"signup"} className={"mt-2"}>
+                        <AuthCard mode={"signup"} />
+                    </TabsContent>
+                </Tabs>
             </div>
-
-            <button onClick={doEmailAuth} className={"w-full mb-12"}>
-                {mode === "signup" ? "Create account" : "Login"}
-            </button>
-
-            <div className={"flex gap-8"}>
-                <button onClick={() => doSocial("google")} className={"flex-1"}>
-                    Continue with Google
-                </button>
-                <button onClick={() => doSocial("github")} className={"flex-1"}>
-                    Continue with Github
-                </button>
-            </div>
-
-            <p className={"mt-12"}>{status}</p>
         </div>
     )
 }
